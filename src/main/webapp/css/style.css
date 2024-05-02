@@ -2,7 +2,7 @@
 
 body {
     color: #333333;
-    font-family: "Hiragino Kaku Gothic Pro",Meiryo,"MS PGothic",Helvetica,Arial,sans-serif;
+    font-family: "Hiragino Kaku Gothic Pro", Meiryo, "MS PGothic", Helvetica, Arial, sans-serif;
 }
 
 #header {
@@ -17,25 +17,23 @@ body {
     padding-left: 3%;
 }
 
-h1 {
-    font-size: 24px;
+h1, h2, h3 {
+    font-size: 24px;  /* h1のサイズ */
     display: inline;
 }
 
-
 h2 {
-    font-size: 36px;
+    font-size: 36px;  /* h2のサイズ */
     margin-bottom: 15px;
 }
 
-li {
-    margin-top: 10px;
-    margin-bottom: 10px;
+h3 {
+    font-size: larger;  /* h3のサイズ */
 }
 
-p {
-    margin-top: 15px;
-    margin-bottom: 15px;
+li, p, a, pre{
+    margin-top: 5px;  /* 統一されたマージン */
+    margin-bottom: 5px;
 }
 
 a {
@@ -45,21 +43,24 @@ a {
 
 table, tr, th, td {
     border: 1px solid #cccccc;
+    table-layout: fixed;
 }
 
 table {
-    width: 100%;
-    table-layout: fixed;
+    width: 100%;  /* テーブルの幅をページ幅に合わせる */
+    margin: 0 auto;  /* テーブルをページの中央に配置 */
+}
+
+th, td {
+    padding: 10px 2%;
 }
 
 th {
     width: 26%;
-    padding: 10px 2%;
 }
 
 td {
     width: 66%;
-    padding: 10px 2%;
 }
 
 button {
@@ -71,25 +72,6 @@ button {
     text-align: center;
 }
 
-table#employee_list th {
-    width: 30%;
-    padding: 10px 2%;
-}
-
-table#employee_list td {
-    width: 29%;
-    padding: 10px 2%;
-}
-
-tr.row1 {
-        background-color: #f2f2f2;
-}
-tr.row0 {
-        background-color: #ffffff;
-}
-select {
-    height: 30px;
-}
 #header_menu {
     width: 57%;
     padding-top: 17px;
@@ -105,36 +87,48 @@ select {
     display: inline-block;
 }
 
-#header a {
+#header a, h1 a {
     color: #eeeeee;
 }
 
-h1 a {
-    color: #eeeeee;
+table#employee_list th, table#employee_list td {
+    width: 30%;
 }
+
 table#report_list th {
     font-weight: bold;
-    padding: 10px 2%;
 }
 
-table#report_list .report_name {
-    width: 20%;
-    padding: 10px 2%;
-}
-table#report_list .report_date {
-    width: 20%;
-}
-
-table#report_list .report_title {
-    width: 37%;
-}
-
+table#report_list .report_name,
+table#report_list .report_date,
+table#report_list .report_title,
 table#report_list .report_action {
-    width: 13%;
+    text-align: left;
 }
-pre {
-    font-family: "Hiragino Kaku Gothic Pro",Meiryo,"MS PGothic",Helvetica,Arial,sans-serif;
+
+/* エラーメッセージ */
+#flush_error, #flush_success {
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: left;
+    border: 1px solid; /* ボーダーの色は後で指定 */
 }
-h3 {
-    font-size: larger;
+
+#flush_error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+#flush_success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+pre{
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left; /* preタグ内のテキストを左揃えに設定 */
 }

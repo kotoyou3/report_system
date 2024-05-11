@@ -12,6 +12,9 @@ public enum ForwardConst {
     ACT_EMP("Employee"),
     ACT_REP("Report"),
     ACT_AUTH("Auth"),
+ // 例：新しいエラーアクションを追加
+    ACT_ERR("Error"),
+
 
     //command
     CMD("command"),

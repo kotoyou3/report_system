@@ -31,7 +31,16 @@
                         <td class="report_name"><c:out value="${report.employee.name}" /></td>
                         <td class="report_date"><fmt:formatDate value='${reportDay}' pattern='yyyy-MM-dd' /></td>
                         <td class="report_title">${report.title}</td>
-                        <td class="report_action"><a href="<c:url value='?action=${actRep}&command=${commShow}&id=${report.id}' />">詳細を見る</a></td>
+                        <td class="report_action">
+                            <a href="<c:url value='?action=${actRep}&command=${commShow}&id=${report.id}' />">詳細を見る</a>
+                            <%-- 管理者のみ削除ボタンを表示 --%>
+                            <% if (session.getAttribute("userRole") != null && session.getAttribute("userRole").equals("admin")) { %>
+                                <form action="deleteReport" method="post" style="display: inline;">
+                                    <input type="hidden" name="reportId" value="${report.id}">
+                                    <button type="submit" onclick="return confirm('本当に削除しますか？');">削除</button>
+                                </form>
+                            <% } %>
+                        </td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -51,6 +60,5 @@
             </c:forEach>
         </div>
         <p><a href="<c:url value='?action=${actRep}&command=${commNew}' />">新規日報の登録</a></p>
-
     </c:param>
 </c:import>

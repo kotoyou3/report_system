@@ -57,39 +57,40 @@ public abstract class ActionBase {
 
         Method commandMethod;
         try {
-
-            //パラメータからcommandを取得
+            // パラメータからcommandを取得
             String command = request.getParameter(ForwardConst.CMD.getValue());
 
-            //ommandに該当するメソッドを実行する
-            //(例: action=Employee command=show の場合 EmployeeActionクラスのshow()メソッドを実行する)
+            // commandに該当するメソッドを実行する
+            // (例: action=Employee command=show の場合 EmployeeActionクラスのshow()メソッドを実行する)
             commandMethod = this.getClass().getDeclaredMethod(command, new Class[0]);
-            commandMethod.invoke(this, new Object[0]); //メソッドに渡す引数はなし
+            commandMethod.invoke(this, new Object[0]); // メソッドに渡す引数はなし
 
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NullPointerException e) {
 
-            //発生した例外をコンソールに表示
+            // 発生した例外を詳細にログに出力
+            System.err.println("Exception in ActionBase.invoke():");
             e.printStackTrace();
-            //commandの値が不正で実行できない場合エラー画面を呼び出し
+
+            // commandの値が不正で実行できない場合エラー画面を呼び出し
             forward(ForwardConst.FW_ERR_UNKNOWN);
         }
 
     }
 
     /**
-     * 指定されたjspの呼び出しを行う
-     * @param target 遷移先jsp画面のファイル名(拡張子を含まない)
+     * 指定された JSP の呼び出しを行う
+     * @param target 遷移先 JSP 画面のファイル名（拡張子を含まない）
      * @throws ServletException
      * @throws IOException
      */
     protected void forward(ForwardConst target) throws ServletException, IOException {
 
-        //jspファイルの相対パスを作成
+        // JSP ファイルの相対パスを作成
         String forward = String.format("/WEB-INF/views/%s.jsp", target.getValue());
         RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
 
-        //jspファイルの呼び出し
+        // JSP ファイルの呼び出し
         dispatcher.forward(request, response);
 
     }
@@ -104,43 +105,42 @@ public abstract class ActionBase {
     protected void redirect(ForwardConst action, ForwardConst command)
             throws ServletException, IOException {
 
-        //URLを構築
+        // URLを構築
         String redirectUrl = request.getContextPath() + "/?action=" + action.getValue();
         if (command != null) {
             redirectUrl = redirectUrl + "&command=" + command.getValue();
         }
 
-        //URLへリダイレクト
+        // URLへリダイレクト
         response.sendRedirect(redirectUrl);
 
     }
 
     /**
-     * CSRF対策 token不正の場合はエラー画面を表示
-     * @return true: token有効 false: token不正
+     * CSRF 対策：トークン不正の場合はエラーメッセージを表示しリダイレクト
+     * @return true: トークン有効、false: トークン不正
      * @throws ServletException
      * @throws IOException
      */
     protected boolean checkToken() throws ServletException, IOException {
-
-        //パラメータからtokenの値を取得
+        // パラメータからトークンの値を取得
         String _token = getRequestParam(AttributeConst.TOKEN);
 
         if (_token == null || !(_token.equals(getTokenId()))) {
+            // トークンが無効な場合、エラーメッセージをセッションに設定
+            putSessionScope(AttributeConst.FLUSH, "無効なトークンです。もう一度お試しください。");
 
-            //tokenが設定されていない、またはセッションIDと一致しない場合はエラー画面を表示
-            forward(ForwardConst.FW_ERR_UNKNOWN);
-
+            // エラーメッセージを表示するためにリダイレクト
+            redirect(ForwardConst.ACT_ERR, ForwardConst.CMD_INDEX);
             return false;
         } else {
             return true;
         }
-
     }
 
     /**
-     * セッションIDを取得する
-     * @return セッションID
+     * セッション ID を取得する
+     * @return セッション ID
      */
     protected String getTokenId() {
         return request.getSession().getId();
@@ -148,7 +148,7 @@ public abstract class ActionBase {
 
     /**
      * リクエストから表示を要求されているページ数を取得し、返却する
-     * @return 要求されているページ数(要求がない場合は1)
+     * @return 要求されているページ数（要求がない場合は1）
      */
     protected int getPage() {
         int page;
@@ -161,8 +161,8 @@ public abstract class ActionBase {
 
     /**
      * 文字列を数値に変換する
-     * @param strNumber 変換前文字列
-     * @return 変換後数値
+     * @param strNumber 変換前の文字列
+     * @return 変換後の数値
      */
     protected int toNumber(String strNumber) {
         int number = 0;
@@ -175,9 +175,9 @@ public abstract class ActionBase {
     }
 
     /**
-     * 文字列をLocalDate型に変換する
-     * @param strDate 変換前文字列
-     * @return 変換後LocalDateインスタンス
+     * 文字列を LocalDate 型に変換する
+     * @param strDate 変換前の文字列
+     * @return 変換後の LocalDate インスタンス
      */
     protected LocalDate toLocalDate(String strDate) {
         if (strDate == null || strDate.equals("")) {
@@ -240,5 +240,4 @@ public abstract class ActionBase {
     protected <R> R getContextScope(PropertyConst key) {
         return (R) context.getAttribute(key.getValue());
     }
-
 }

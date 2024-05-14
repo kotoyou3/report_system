@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
+import java.util.UUID; // UUID をインポート
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -17,7 +18,6 @@ import constants.PropertyConst;
 
 /**
  * 各Actionクラスの親クラス。共通処理を行う。
- *
  */
 public abstract class ActionBase {
     protected ServletContext context;
@@ -31,10 +31,7 @@ public abstract class ActionBase {
      * @param servletRequest
      * @param servletResponse
      */
-    public void init(
-            ServletContext servletContext,
-            HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse) {
+    public void init(ServletContext servletContext, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         this.context = servletContext;
         this.request = servletRequest;
         this.response = servletResponse;
@@ -52,30 +49,18 @@ public abstract class ActionBase {
      * @throws ServletException
      * @throws IOException
      */
-    protected void invoke()
-            throws ServletException, IOException {
-
+    protected void invoke() throws ServletException, IOException {
         Method commandMethod;
         try {
-            // パラメータからcommandを取得
             String command = request.getParameter(ForwardConst.CMD.getValue());
-
-            // commandに該当するメソッドを実行する
-            // (例: action=Employee command=show の場合 EmployeeActionクラスのshow()メソッドを実行する)
             commandMethod = this.getClass().getDeclaredMethod(command, new Class[0]);
-            commandMethod.invoke(this, new Object[0]); // メソッドに渡す引数はなし
-
+            commandMethod.invoke(this, new Object[0]);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NullPointerException e) {
-
-            // 発生した例外を詳細にログに出力
             System.err.println("Exception in ActionBase.invoke():");
             e.printStackTrace();
-
-            // commandの値が不正で実行できない場合エラー画面を呼び出し
             forward(ForwardConst.FW_ERR_UNKNOWN);
         }
-
     }
 
     /**
@@ -85,14 +70,9 @@ public abstract class ActionBase {
      * @throws IOException
      */
     protected void forward(ForwardConst target) throws ServletException, IOException {
-
-        // JSP ファイルの相対パスを作成
         String forward = String.format("/WEB-INF/views/%s.jsp", target.getValue());
         RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
-
-        // JSP ファイルの呼び出し
         dispatcher.forward(request, response);
-
     }
 
     /**
@@ -102,18 +82,20 @@ public abstract class ActionBase {
      * @throws ServletException
      * @throws IOException
      */
-    protected void redirect(ForwardConst action, ForwardConst command)
-            throws ServletException, IOException {
-
-        // URLを構築
+    protected void redirect(ForwardConst action, ForwardConst command) throws ServletException, IOException {
         String redirectUrl = request.getContextPath() + "/?action=" + action.getValue();
         if (command != null) {
-            redirectUrl = redirectUrl + "&command=" + command.getValue();
+            redirectUrl += "&command=" + command.getValue();
         }
-
-        // URLへリダイレクト
         response.sendRedirect(redirectUrl);
+    }
 
+    /**
+     * CSRF対策としてセッションにトークンを生成して保存する
+     */
+    public void generateAndSaveToken() {
+        String tokenId = UUID.randomUUID().toString();
+        putSessionScope(AttributeConst.TOKEN, tokenId);
     }
 
     /**
@@ -123,20 +105,19 @@ public abstract class ActionBase {
      * @throws IOException
      */
     protected boolean checkToken() throws ServletException, IOException {
-        // パラメータからトークンの値を取得
         String _token = getRequestParam(AttributeConst.TOKEN);
-
-        if (_token == null || !(_token.equals(getTokenId()))) {
-            // トークンが無効な場合、エラーメッセージをセッションに設定
+        if (_token == null || !_token.equals(getTokenId())) {
             putSessionScope(AttributeConst.FLUSH, "無効なトークンです。もう一度お試しください。");
-
-            // エラーメッセージを表示するためにリダイレクト
-            redirect(ForwardConst.ACT_ERR, ForwardConst.CMD_INDEX);
             return false;
         } else {
             return true;
         }
     }
+
+    /**
+     * セッション ID を取得する
+     *
+
 
     /**
      * セッション ID を取得する

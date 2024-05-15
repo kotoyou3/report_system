@@ -14,28 +14,21 @@ import constants.JpaConst;
 import constants.MessageConst;
 import services.ReportService;
 
-/**
- * 日報に関する処理を行うActionクラス
- */
 public class ReportAction extends ActionBase {
     private ReportService service;
 
     @Override
     public void process() throws ServletException, IOException {
         service = new ReportService();
-
-        // デバッグログでログインユーザーの情報を確認
         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
         System.out.println("Logged in employee: " + ev);
         if (ev != null) {
             System.out.println("Admin flag: " + ev.getAdminFlag());
         }
-
         invoke();
         service.close();
     }
 
-    // 一覧画面を表示する
     public void index() throws ServletException, IOException {
         int page = getPage();
         List<ReportView> reports = service.getAllPerPage(page);
@@ -54,14 +47,13 @@ public class ReportAction extends ActionBase {
         forward(ForwardConst.FW_REP_INDEX);
     }
 
-    // 新規登録画面を表示する
     public void entryNew() throws ServletException, IOException {
+        generateAndSaveToken();
         putRequestScope(AttributeConst.TOKEN, getTokenId());
         putRequestScope(AttributeConst.REPORT, new ReportView());
         forward(ForwardConst.FW_REP_NEW);
     }
 
-    // 新規登録を行う
     public void create() throws ServletException, IOException {
         if (checkToken()) {
             LocalDate day = getRequestParam(AttributeConst.REP_DATE) == null || getRequestParam(AttributeConst.REP_DATE).equals("")
@@ -81,6 +73,7 @@ public class ReportAction extends ActionBase {
             List<String> errors = service.create(rv);
 
             if (errors.size() > 0) {
+                generateAndSaveToken();
                 putRequestScope(AttributeConst.TOKEN, getTokenId());
                 putRequestScope(AttributeConst.REPORT, rv);
                 putRequestScope(AttributeConst.ERR, errors);
@@ -92,7 +85,6 @@ public class ReportAction extends ActionBase {
         }
     }
 
-    // 詳細画面を表示する
     public void show() throws ServletException, IOException {
         int reportId = toNumber(getRequestParam(AttributeConst.REP_ID));
         ReportView rv = service.findOne(reportId);
@@ -103,7 +95,6 @@ public class ReportAction extends ActionBase {
         } else {
             putRequestScope(AttributeConst.REPORT, rv);
 
-            // 管理者の場合に削除ボタンを表示するフラグを設定
             if (ev.getAdminFlag() == JpaConst.ROLE_ADMIN || ev.getId().equals(rv.getEmployee().getId())) {
                 request.setAttribute("showDeleteButton", true);
             } else {
@@ -114,13 +105,11 @@ public class ReportAction extends ActionBase {
         }
     }
 
-    // 編集画面を表示する
     public void edit() throws ServletException, IOException {
         int reportId = toNumber(getRequestParam(AttributeConst.REP_ID));
         ReportView rv = service.findOne(reportId);
         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
 
-        // ログ出力でデバッグ
         System.out.println("Report ID: " + reportId);
         System.out.println("Report View: " + rv);
         System.out.println("Logged in Employee: " + ev);
@@ -130,13 +119,13 @@ public class ReportAction extends ActionBase {
             System.out.println("Access denied or report not found");
             forward(ForwardConst.FW_ERR_UNKNOWN);
         } else {
+            generateAndSaveToken();
             putRequestScope(AttributeConst.TOKEN, getTokenId());
             putRequestScope(AttributeConst.REPORT, rv);
-            forward(ForwardConst.FW_REP_EDIT);  // 編集画面に進む
+            forward(ForwardConst.FW_REP_EDIT);
         }
     }
 
-    // 更新を行う
     public void update() throws ServletException, IOException {
         if (checkToken()) {
             int reportId = toNumber(getRequestParam(AttributeConst.REP_ID));
@@ -148,6 +137,7 @@ public class ReportAction extends ActionBase {
 
             List<String> errors = service.update(rv);
             if (!errors.isEmpty()) {
+                generateAndSaveToken();
                 putRequestScope(AttributeConst.TOKEN, getTokenId());
                 putRequestScope(AttributeConst.REPORT, rv);
                 putRequestScope(AttributeConst.ERR, errors);
@@ -159,8 +149,7 @@ public class ReportAction extends ActionBase {
         }
     }
 
-    // 日報を削除する
-    public void delete() throws ServletException, IOException {
+    public void destroy() throws ServletException, IOException {
         if (!checkAdmin()) {
             putSessionScope(AttributeConst.FLUSH, "管理者権限が必要です。");
             redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
@@ -168,8 +157,6 @@ public class ReportAction extends ActionBase {
         }
 
         if (!checkToken()) {
-            putSessionScope(AttributeConst.FLUSH, MessageConst.I_LOGINED.getMessage());
-            redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
             return;
         }
 
@@ -184,11 +171,8 @@ public class ReportAction extends ActionBase {
         }
     }
 
-    // 管理者かどうかを確認する
     private boolean checkAdmin() throws ServletException, IOException {
         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
-
-        // 管理者でなければエラー画面を表示
         if (ev.getAdminFlag() != JpaConst.ROLE_ADMIN) {
             forward(ForwardConst.FW_ERR_UNKNOWN);
             return false;

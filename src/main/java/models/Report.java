@@ -17,9 +17,6 @@ import javax.persistence.Table;
 
 import constants.JpaConst;
 
-/**
- * 日報データのDTOモデル
- */
 @Entity
 @Table(name = JpaConst.TABLE_REP)
 @NamedQueries({

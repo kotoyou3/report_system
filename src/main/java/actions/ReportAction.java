@@ -170,6 +170,9 @@ public class ReportAction extends ActionBase {
         }
     }
 
+
+
+
     // 管理者かどうかを確認する
     private boolean checkAdmin() throws ServletException, IOException {
         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
@@ -182,4 +185,5 @@ public class ReportAction extends ActionBase {
             return true;
         }
     }
+
 }

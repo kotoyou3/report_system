@@ -37,6 +37,7 @@ public class JpaConst {
     public static final String REP_COL_CREATED_AT = "created_at"; // 登録日時
     public static final String REP_COL_UPDATED_AT = "updated_at"; // 更新日時
 
+
     // Entity名
     public static final String ENTITY_EMP = "employee"; // 従業員
     public static final String ENTITY_REP = "report"; // 日報
@@ -61,16 +62,16 @@ public class JpaConst {
     public static final String Q_EMP_COUNT_REGISTERED_BY_CODE_DEF = "SELECT COUNT(e) FROM Employee AS e WHERE e.code = :" + JPQL_PARM_CODE;
     // 全ての日報をidの降順に取得する
     public static final String Q_REP_GET_ALL = ENTITY_REP + ".getAll";
-    public static final String Q_REP_GET_ALL_DEF = "SELECT r FROM Report AS r ORDER BY r.id DESC";
+    public static final String Q_REP_GET_ALL_DEF = "SELECT r FROM Report AS r WHERE r.deleted = false ORDER BY r.id DESC";
     // 全ての日報の件数を取得する
     public static final String Q_REP_COUNT = ENTITY_REP + ".count";
-    public static final String Q_REP_COUNT_DEF = "SELECT COUNT(r) FROM Report AS r";
+    public static final String Q_REP_COUNT_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.deleted = false";
     // 指定した従業員が作成した日報を全件idの降順で取得する
     public static final String Q_REP_GET_ALL_MINE = ENTITY_REP + ".getAllMine";
-    public static final String Q_REP_GET_ALL_MINE_DEF = "SELECT r FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " ORDER BY r.id DESC";
+    public static final String Q_REP_GET_ALL_MINE_DEF = "SELECT r FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " AND r.deleted = false ORDER BY r.id DESC";
     // 指定した従業員が作成した日報の件数を取得する
     public static final String Q_REP_COUNT_ALL_MINE = ENTITY_REP + ".countAllMine";
-    public static final String Q_REP_COUNT_ALL_MINE_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE;
+    public static final String Q_REP_COUNT_ALL_MINE_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " AND r.deleted = false";
     public static final String Q_REP_FIND_BY_EMPLOYEE = ENTITY_REP + ".findByEmployee";
     public static final String Q_REP_FIND_BY_EMPLOYEE_DEF = "SELECT r FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " AND r.deleted = false";
 }

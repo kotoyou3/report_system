@@ -16,13 +16,11 @@ import models.validators.ReportValidator;
 public class ReportService extends ServiceBase {
 
     public void delete(int id) {
-        em.getTransaction().begin();
-        Report report = findOneInternal(id);
-        if (report != null) {
-            report.setDeleted(true); // 論理削除フラグをtrueに設定
-            em.merge(report); // 変更をデータベースに保存
+        ReportView rv = findOne(id);
+        if (rv != null) {
+            rv.setDeleted(true); // 論理削除フラグをtrueに設定
+            updateInternal(rv); // 変更をデータベースに保存
         }
-        em.getTransaction().commit();
     }
 
     public List<ReportView> getMinePerPage(EmployeeView employee, int page) {
@@ -85,7 +83,6 @@ public class ReportService extends ServiceBase {
         em.persist(ReportConverter.toModel(rv));
         em.getTransaction().commit();
     }
-
     private void updateInternal(ReportView rv) {
         em.getTransaction().begin();
         Report r = findOneInternal(rv.getId());

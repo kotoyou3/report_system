@@ -74,7 +74,7 @@ public abstract class ActionBase {
     }
 
     protected String getTokenId() {
-        return (String) getSessionScope(AttributeConst.TOKEN);
+        return request.getSession().getId();
     }
 
     protected int getPage() {

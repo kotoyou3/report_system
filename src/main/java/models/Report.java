@@ -25,23 +25,24 @@ import constants.JpaConst;
 @NamedQueries({
     @NamedQuery(
         name = JpaConst.Q_REP_GET_ALL,
-        query = "SELECT r FROM Report r WHERE r.deleted = false ORDER BY r.id DESC"
+        query = JpaConst.Q_REP_GET_ALL_DEF
     ),
     @NamedQuery(
         name = JpaConst.Q_REP_FIND_BY_EMPLOYEE,
-        query = "SELECT r FROM Report r WHERE r.employee = :employee AND r.deleted = false"
+        query = JpaConst.Q_REP_FIND_BY_EMPLOYEE_DEF
     ),
     @NamedQuery(
         name = JpaConst.Q_REP_GET_ALL_MINE,
-        query = "SELECT r FROM Report r WHERE r.employee = :employee AND r.deleted = false ORDER BY r.id DESC"
+        query = JpaConst.Q_REP_GET_ALL_MINE_DEF
     ),
     @NamedQuery(
         name = JpaConst.Q_REP_COUNT,
-        query = "SELECT COUNT(r) FROM Report r WHERE r.deleted = false"
+        query = JpaConst.Q_REP_COUNT_DEF
     ),
     @NamedQuery(
-            name = JpaConst.Q_REP_COUNT_ALL_MINE,
-            query = JpaConst.Q_REP_COUNT_ALL_MINE_DEF)
+        name = JpaConst.Q_REP_COUNT_ALL_MINE,
+        query = JpaConst.Q_REP_COUNT_ALL_MINE_DEF
+    )
 })
 public class Report {
 

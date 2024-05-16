@@ -73,5 +73,4 @@ public class JpaConst {
     public static final String Q_REP_COUNT_ALL_MINE_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE;
     public static final String Q_REP_FIND_BY_EMPLOYEE = ENTITY_REP + ".findByEmployee";
     public static final String Q_REP_FIND_BY_EMPLOYEE_DEF = "SELECT r FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " AND r.deleted = false";
-
 }

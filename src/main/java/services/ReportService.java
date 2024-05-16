@@ -3,6 +3,8 @@ package services;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.TypedQuery;
+
 import actions.views.EmployeeConverter;
 import actions.views.EmployeeView;
 import actions.views.ReportConverter;
@@ -11,15 +13,8 @@ import constants.JpaConst;
 import models.Report;
 import models.validators.ReportValidator;
 
-/**
- * 日報テーブルの操作に関わる処理を行うクラス
- */
 public class ReportService extends ServiceBase {
 
-    /**
-     * 指定されたIDの日報を論理削除する
-     * @param id 日報のID
-     */
     public void delete(int id) {
         em.getTransaction().begin();
         Report report = findOneInternal(id);
@@ -30,36 +25,30 @@ public class ReportService extends ServiceBase {
         em.getTransaction().commit();
     }
 
-    // 以下のメソッドは以前のものと同じで変更なしです
     public List<ReportView> getMinePerPage(EmployeeView employee, int page) {
-        List<Report> reports = em.createNamedQuery(JpaConst.Q_REP_GET_ALL_MINE, Report.class)
-                                 .setParameter("employee", EmployeeConverter.toModel(employee))
-                                 .setFirstResult(JpaConst.ROW_PER_PAGE * (page - 1))
-                                 .setMaxResults(JpaConst.ROW_PER_PAGE)
-                                 .getResultList();
-        return ReportConverter.toViewList(reports);
+        TypedQuery<Report> query = em.createNamedQuery(JpaConst.Q_REP_GET_ALL_MINE, Report.class)
+                .setParameter(JpaConst.JPQL_PARM_EMPLOYEE, EmployeeConverter.toModel(employee))
+                .setFirstResult(JpaConst.ROW_PER_PAGE * (page - 1))
+                .setMaxResults(JpaConst.ROW_PER_PAGE);
+        return ReportConverter.toViewList(query.getResultList());
     }
 
     public long countAllMine(EmployeeView employee) {
-        long count = (long) em.createNamedQuery(JpaConst.Q_REP_COUNT_ALL_MINE, Long.class)
-                              .setParameter("employee", EmployeeConverter.toModel(employee))
-                              .getSingleResult();
-        return count;
-
+        TypedQuery<Long> query = em.createNamedQuery(JpaConst.Q_REP_COUNT_ALL_MINE, Long.class)
+                .setParameter(JpaConst.JPQL_PARM_EMPLOYEE, EmployeeConverter.toModel(employee));
+        return query.getSingleResult();
     }
 
     public List<ReportView> getAllPerPage(int page) {
-        List<Report> reports = em.createNamedQuery(JpaConst.Q_REP_GET_ALL, Report.class)
+        TypedQuery<Report> query = em.createNamedQuery(JpaConst.Q_REP_GET_ALL, Report.class)
                 .setFirstResult(JpaConst.ROW_PER_PAGE * (page - 1))
-                .setMaxResults(JpaConst.ROW_PER_PAGE)
-                .getResultList();
-        return ReportConverter.toViewList(reports);
+                .setMaxResults(JpaConst.ROW_PER_PAGE);
+        return ReportConverter.toViewList(query.getResultList());
     }
 
     public long countAll() {
-        long reports_count = (long) em.createNamedQuery(JpaConst.Q_REP_COUNT, Long.class)
-                .getSingleResult();
-        return reports_count;
+        TypedQuery<Long> query = em.createNamedQuery(JpaConst.Q_REP_COUNT, Long.class);
+        return query.getSingleResult();
     }
 
     public ReportView findOne(int id) {
@@ -68,10 +57,10 @@ public class ReportService extends ServiceBase {
 
     public List<String> create(ReportView rv) {
         List<String> errors = ReportValidator.validate(rv);
-        if (errors.size() == 0) {
-            LocalDateTime ldt = LocalDateTime.now();
-            rv.setCreatedAt(ldt);
-            rv.setUpdatedAt(ldt);
+        if (errors.isEmpty()) {
+            LocalDateTime now = LocalDateTime.now();
+            rv.setCreatedAt(now);
+            rv.setUpdatedAt(now);
             createInternal(rv);
         }
         return errors;
@@ -79,9 +68,9 @@ public class ReportService extends ServiceBase {
 
     public List<String> update(ReportView rv) {
         List<String> errors = ReportValidator.validate(rv);
-        if (errors.size() == 0) {
-            LocalDateTime ldt = LocalDateTime.now();
-            rv.setUpdatedAt(ldt);
+        if (errors.isEmpty()) {
+            LocalDateTime now = LocalDateTime.now();
+            rv.setUpdatedAt(now);
             updateInternal(rv);
         }
         return errors;
